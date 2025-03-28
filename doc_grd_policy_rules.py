@@ -14,13 +14,13 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 PARAM_FILE_NAME = "grd_config.json"
 
-def load_parameters(filename):
+def load_parameters(filepath=None):
     # JSONファイルからパラメータを読み込む
-    try:
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        config_path = os.path.join(script_dir, filename)
+    if filepath is None:
+        filepath = os.path.join(os.path.dirname(os.path.abspath(__file__)), PARAM_FILE_NAME)
 
-        with open(config_path, "r", encoding="utf-8") as f:
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
             return json.load(f)
     except Exception as e:
         print(f"エラーが発生しました: {e}")
@@ -136,13 +136,14 @@ def exit_program(code=0, conn=None):
 def main():
     # コマンドライン引数の解析
     parser = argparse.ArgumentParser(description="Output Guardium policy rules in CSV format")
+    parser.add_argument("-f", "--filepath", help=f"Config file(json) path. Use {PARAM_FILE_NAME} if omitted")
     parser.add_argument("-u", "--username", required=True, help="Guardium admin user name")
     parser.add_argument("-w", "--password", required=True, help="Guardium admin user password")
     parser.add_argument("-o", "--output_file", help="Output file name. STDOUT if omitted")
     args = parser.parse_args()
 
     # パラメーターをJSONファイルから読み込む
-    params = load_parameters(PARAM_FILE_NAME)
+    params = load_parameters(args.filepath)
 
     if params:
         # print(params)
